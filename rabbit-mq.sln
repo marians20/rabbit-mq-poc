@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{364D313C-46A5-4186-9B15-1D4D1701BBCE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{79018497-6FE8-4728-BDE7-D67D9C740BB9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMqAdapter", "src\Infrastructure\RabbitMqAdapter\RabbitMqAdapter.csproj", "{719937EB-0B2D-46E9-8633-26A09BD64AE6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{659528FF-D7F2-4D0E-990C-D174090EDA51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sender", "src\Presentation\Sender\Sender.csproj", "{5D73A8B4-32E3-4531-9216-2C0C057AC7A6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{719937EB-0B2D-46E9-8633-26A09BD64AE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{719937EB-0B2D-46E9-8633-26A09BD64AE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{719937EB-0B2D-46E9-8633-26A09BD64AE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{719937EB-0B2D-46E9-8633-26A09BD64AE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D73A8B4-32E3-4531-9216-2C0C057AC7A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D73A8B4-32E3-4531-9216-2C0C057AC7A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D73A8B4-32E3-4531-9216-2C0C057AC7A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D73A8B4-32E3-4531-9216-2C0C057AC7A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{79018497-6FE8-4728-BDE7-D67D9C740BB9} = {364D313C-46A5-4186-9B15-1D4D1701BBCE}
+		{719937EB-0B2D-46E9-8633-26A09BD64AE6} = {79018497-6FE8-4728-BDE7-D67D9C740BB9}
+		{659528FF-D7F2-4D0E-990C-D174090EDA51} = {364D313C-46A5-4186-9B15-1D4D1701BBCE}
+		{5D73A8B4-32E3-4531-9216-2C0C057AC7A6} = {659528FF-D7F2-4D0E-990C-D174090EDA51}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BE84B418-703B-4708-9DE5-830C7F6BD8F8}
+	EndGlobalSection
+EndGlobal

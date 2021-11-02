@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Receiver": {
+      "commandName": "Executable"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+FROM rabbitmq:3.7-management
+#RUN rabbitmqctl add_user administrator admin
+#RUN rabbitmqctl set_user_tags administrator administrator
+#RUN rabbitmq set_permissions -p / administrator .* .* .*
+COPY rabbitmq.conf /etc/rabbitmq
+COPY definitions.json /etc/rabbitmq
+
+RUN ls /etc/rabbitmq
+RUN cat /etc/rabbitmq/rabbitmq.conf
