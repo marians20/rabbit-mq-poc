@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMqAdapter;
 using System;
+using System.Threading;
 
 namespace Sender
 {
@@ -18,9 +19,23 @@ namespace Sender
                 .BuildServiceProvider();
 
             var adapter = serviceProvider.GetService<IRabbitMqAdapter>();
-            adapter.OnReceived("q", "rk", (msg) => Console.WriteLine(msg));
 
-            adapter.Publish("q", "rk", "Ai scapat sapunul!", (message) => Console.WriteLine(" [x] Sent {0}", message));
+            var ctSource = new CancellationTokenSource();
+            var task = adapter.StartListen("logs", "xxx", (msg) => Console.WriteLine(msg), ctSource.Token);
+
+            adapter.Publish("logs", "xxx", "Ai scapat sapunul!", (message) => Console.WriteLine(" [x] Sent {0}", message));
+
+            while (!task.IsCanceled && !task.IsCompleted)
+            {
+                Thread.Sleep(0);
+                if (Console.ReadKey().KeyChar > 0)
+                {
+                    Console.WriteLine("Cancelling");
+                    ctSource.Cancel();
+                }
+            }
+
+
 
         }
     }

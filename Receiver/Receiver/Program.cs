@@ -16,7 +16,7 @@ class ReceiveLogs
             var queueName = channel.QueueDeclare().QueueName;
             channel.QueueBind(queue: queueName,
                 exchange: "logs",
-                routingKey: "");
+                routingKey: "xxx");
 
             Console.WriteLine(" [*] Waiting for logs.");
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -43,30 +45,43 @@ namespace RabbitMqAdapter
             }
         }
 
-        public void OnReceived(string exchange, string routingKey, Action<string> action)
+        public Task StartListen(string exchange, string routingKey, Action<string> action, CancellationToken cancellationToken)
         {
-            using (var connection = _connectionFactory.CreateConnection())
+            return Task.Run(() =>
             {
-                using (var channel = connection.CreateModel())
+                using (var connection = _connectionFactory.CreateConnection())
                 {
-                    channel.ExchangeDeclare(exchange: exchange, type: ExchangeType.Fanout);
-                    var queueName = channel.QueueDeclare().QueueName;
-                    channel.QueueBind(queue: queueName,
-                        exchange: exchange,
-                        routingKey: routingKey);
-                    Console.WriteLine(" [*] Waiting for logs.");
-                    var consumer = new EventingBasicConsumer(channel);
-                    consumer.Received += (model, ea) =>
+                    using (var channel = connection.CreateModel())
                     {
-                        var body = ea.Body.ToArray();
-                        var message = Encoding.UTF8.GetString(body);
-                        action(message);
-                    };
-                    channel.BasicConsume(queue: queueName,
-                        autoAck: true,
-                        consumer: consumer);
+                        channel.ExchangeDeclare(exchange: exchange, type: ExchangeType.Fanout);
+                        var queueName = channel.QueueDeclare().QueueName;
+                        channel.QueueBind(queue: queueName,
+                            exchange: exchange,
+                            routingKey: routingKey);
+                        Console.WriteLine(" [*] Waiting for logs.");
+                        var consumer = new EventingBasicConsumer(channel);
+                        consumer.Received += (model, ea) =>
+                        {
+                            var body = ea.Body.ToArray();
+                            var message = Encoding.UTF8.GetString(body);
+                            action(message);
+                        };
+                        channel.BasicConsume(queue: queueName,
+                            autoAck: true,
+                            consumer: consumer);
+
+                        while (!cancellationToken.IsCancellationRequested)
+                        {
+                            Thread.Sleep(0);
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                Console.WriteLine("Task cancelled.");
+                            }
+                        }
+                    }
                 }
-            }
+
+            }, cancellationToken);
         }
     }
 }
