@@ -17,7 +17,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Receiver", "src\Presentatio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{A2A15C81-66F9-49B6-9C29-A8D6CFCA78FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Events", "src\Domain\Events\Events.csproj", "{FEC2DCDB-18BD-4A79-B83B-DC116CA3C56D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Events", "src\Domain\Events\Events.csproj", "{FEC2DCDB-18BD-4A79-B83B-DC116CA3C56D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E8B8C3B8-F6F4-4A9B-8380-79D9A9CB87F5}"
+	ProjectSection(SolutionItems) = preProject
+		docker\build.sh = docker\build.sh
+		docker\definitions.json = docker\definitions.json
+		docker\dockerfile = docker\dockerfile
+		docker\rabbitmq.conf = docker\rabbitmq.conf
+		docker\run.sh = docker\run.sh
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

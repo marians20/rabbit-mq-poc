@@ -10,7 +10,3 @@ sudo docker run \
   -p 5672:5672 \
   -p 15672:15672 \
   rabbitmq-with-queue
-# docker exec -it rabbitmq bash
-# rabbitmqctl add_user {username} {password}
-# rabbitmqctl set_user_tags {username} administrator
-# rabbitmqctl set_permissions ...

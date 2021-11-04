@@ -22,25 +22,31 @@ namespace RabbitMqAdapter
         }
 
         public void Publish(
-            string exchange,
-            string routingKey,
+            string queue,
             string message,
             Action<string> afterSendCallback = null)
         {
             using var connection = _connectionFactory.CreateConnection();
             using var channel = connection.CreateModel();
-            channel.ExchangeDeclare(exchange, ExchangeType.Fanout);
+
+            channel.QueueDeclare(queue: queue,
+                     durable: true,
+                     exclusive: false,
+                     autoDelete: false,
+                     arguments: null);
 
             var body = Encoding.UTF8.GetBytes(message);
 
-            channel.BasicPublish(exchange, routingKey, null, body);
+            var properties = channel.CreateBasicProperties();
+            properties.Persistent = true;
+
+            channel.BasicPublish(string.Empty, queue, properties, body);
 
             afterSendCallback?.Invoke(message);
         }
 
         public Task StartListen(
-            string exchange,
-            string routingKey,
+            string queue,
             Action<string> action,
             CancellationToken cancellationToken)
         {
@@ -50,22 +56,28 @@ namespace RabbitMqAdapter
             {
                 using var connection = _connectionFactory.CreateConnection();
                 using var channel = connection.CreateModel();
-                channel.ExchangeDeclare(exchange, ExchangeType.Fanout);
-                var queueName = channel.QueueDeclare().QueueName;
-                channel.QueueBind(queueName, exchange, routingKey);
+                channel.QueueDeclare(queue: queue,
+                     durable: true,
+                     exclusive: false,
+                     autoDelete: false,
+                     arguments: null);
+
+                channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
 
                 var consumer = new EventingBasicConsumer(channel);
-                consumer.Received += (_, ea) =>
+                consumer.Received += (sender, ea) =>
                 {
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
                     action.Invoke(message);
+                    ((EventingBasicConsumer)sender).Model.BasicAck(ea.DeliveryTag, false);
                 };
-                channel.BasicConsume(queueName, true, consumer);
+
+                channel.BasicConsume(queue, false, consumer);
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    Thread.Sleep(0);
+                    Thread.Sleep(1);
                 }
             }, cancellationToken);
         }
