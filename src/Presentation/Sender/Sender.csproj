@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Domain\Events\Events.csproj" />
     <ProjectReference Include="..\..\Infrastructure\RabbitMqAdapter\RabbitMqAdapter.csproj" />
   </ItemGroup>
 
