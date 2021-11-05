@@ -12,13 +12,9 @@ namespace Sender
 {
     internal class Program
     {
-        static Task Main(string[] args)
+        static void Main(string[] args)
         {
-            using var host = CreateHostBuilder(args).Build();
-
-            GenerateMessages(host);
-            
-            return host.RunAsync();
+            CreateHostBuilder(args).Build().Run();
         }
 
         private static IHostBuilder CreateHostBuilder(string[] args)
@@ -29,38 +25,9 @@ namespace Sender
 
             return Host.CreateDefaultBuilder(args)
                 .ConfigureServices((_, services) =>
-                    services.AddRabbitMqDataAdapter(configuration));
-        }
-
-        private static async void GenerateMessages(IHost host)
-        {
-            using var serviceScope = host.Services.CreateScope();
-            var provider = serviceScope.ServiceProvider;
-
-            var adapter = provider.GetRequiredService<IRabbitMqAdapter>();
-            var logger = provider.GetService<ILogger<Program>>();
-
-            var processTime = 50; //milliseconds
-
-            Console.WriteLine("Start sending events.");
-            Console.WriteLine("Press <Enter> to terminate.");
-
-            var pressedKey = ConsoleKey.NoName;
-            do
-            {
-                Thread.Sleep(processTime);
-                adapter?.Publish(
-                    CreateUserEvent.GetRandomCreateUserEvent(),
-                    null,
-                    (message) => logger.LogInformation(" [x] Sent {0}", message.ToString()));
-
-                if (Console.KeyAvailable)
-                {
-                    pressedKey = Console.ReadKey().Key;
-                }
-            } while (pressedKey != ConsoleKey.Enter);
-
-            await host.StopAsync();
+                    services
+                        .AddRabbitMqDataAdapter(configuration)
+                        .AddHostedService<Worker>());
         }
     }
 }
