@@ -3,8 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using RabbitMqAdapter;
 using System;
 using Events;
-using RandomDataGenerator.Randomizers;
-using RandomDataGenerator.FieldOptions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -44,9 +42,6 @@ namespace Sender
 
             var processTime = 50; //milliseconds
 
-            var randomizerFirstName = RandomizerFactory.GetRandomizer(new FieldOptionsFirstName());
-            var randomizerLastName = RandomizerFactory.GetRandomizer(new FieldOptionsLastName());
-
             Console.WriteLine("Start sending events.");
             Console.WriteLine("Press <Enter> to terminate.");
 
@@ -54,14 +49,8 @@ namespace Sender
             do
             {
                 Thread.Sleep(processTime);
-                var createUserEvent = new CreateUserEvent
-                {
-                    FirstName = randomizerFirstName.Generate(),
-                    LastName = randomizerLastName.Generate()
-                };
-
                 adapter?.Publish(
-                    createUserEvent,
+                    CreateUserEvent.GetRandomCreateUserEvent(),
                     null,
                     (message) => logger.LogInformation(" [x] Sent {0}", message.ToString()));
 
