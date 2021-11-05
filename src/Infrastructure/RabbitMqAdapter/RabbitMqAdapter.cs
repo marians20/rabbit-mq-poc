@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using RabbitMQ.Client;
@@ -21,9 +22,10 @@ namespace RabbitMqAdapter
             };
         }
 
+        ///<inheritdoc/>
         public void Publish(
-            string queue,
             string message,
+            string queue,
             Action<string> afterSendCallback = null)
         {
             using var connection = _connectionFactory.CreateConnection();
@@ -45,6 +47,17 @@ namespace RabbitMqAdapter
             afterSendCallback?.Invoke(message);
         }
 
+        ///<inheritdoc/>
+        public void Publish<T>(
+            T message,
+            string queue,
+            Action<T> afterSendCallback = null) where T : class =>
+            Publish(
+                JsonSerializer.Serialize(message),
+                queue ?? typeof(T).Name,
+                msg => afterSendCallback(JsonSerializer.Deserialize<T>(msg)));
+
+        ///<inheritdoc/>
         public Task StartListen(
             string queue,
             Action<string> action,
@@ -81,5 +94,10 @@ namespace RabbitMqAdapter
                 }
             }, cancellationToken);
         }
+
+        ///<inheritdoc/>
+        public Task StartListen<T>(string queue, Action<T> action, CancellationToken cancellationToken)
+             where T : class =>
+            StartListen(queue ?? typeof(T).Name, msg => action(JsonSerializer.Deserialize<T>(msg)), cancellationToken);
     }
 }

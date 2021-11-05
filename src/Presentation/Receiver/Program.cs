@@ -1,68 +1,56 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Events;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using RabbitMqAdapter;
 
 namespace Receiver
 {
     class Program
     {
-        static void Main()
+        static Task Main(string[] args)
         {
-            var adapter = GetRabbitMqAdapter();
+            using var host = CreateHostBuilder(args).Build();
 
-            var routingKey = "CreateUserEvent";
-            var processTime = 100; //milliseconds
+            ProcessMessages(host.Services);
 
-            var ctSource = new CancellationTokenSource();
-            var task = adapter?.StartListen(
-                routingKey,
-                (message) => ProcessMessage(message, processTime),
-                ctSource.Token);
-
-            Console.WriteLine("Press <Enter> to terminate...");
-
-            // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
-            WaitForEnter(task, ctSource);
+            return host.RunAsync();
         }
 
-        private static void ProcessMessage(string message, int processTime)
-        {
-            Thread.Sleep(processTime);
-            Console.WriteLine(" [x] Received {0}", message);
-        }
-
-        private static IRabbitMqAdapter GetRabbitMqAdapter()
+        private static IHostBuilder CreateHostBuilder(string[] args)
         {
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile($"appsettings.json", true, true)
                 .Build();
 
-            var serviceProvider = new ServiceCollection()
-                .AddRabbitMqDataAdapter(configuration)
-                .BuildServiceProvider();
-
-            var adapter = serviceProvider.GetService<IRabbitMqAdapter>();
-            return adapter;
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureServices((_, services) =>
+                    services.AddRabbitMqDataAdapter(configuration));
         }
 
-        private static void WaitForEnter(Task task, CancellationTokenSource ctSource)
+        private static void ProcessMessages(IServiceProvider services)
         {
-            while (task is {IsCanceled: false, IsCompleted: false})
-            {
-                Thread.Sleep(1);
-                if (!Console.KeyAvailable)
-                {
-                    continue;
-                }
+            using var serviceScope = services.CreateScope();
+            var provider = serviceScope.ServiceProvider;
 
-                if (Console.ReadKey().Key == ConsoleKey.Enter)
+            var adapter = provider.GetRequiredService<IRabbitMqAdapter>();
+            var logger = provider.GetService<ILogger<Program>>();
+
+            var processTime = 100; //milliseconds
+
+            var ctSource = new CancellationTokenSource();
+            var task = adapter.StartListen<CreateUserEvent>(
+                null,
+                (message) =>
                 {
-                    ctSource.Cancel();
-                }
-            }
+                    Thread.Sleep(processTime);
+                    logger.LogInformation(" [x] Received {0}", message.ToString());
+                },
+                ctSource.Token);
         }
     }
 }
